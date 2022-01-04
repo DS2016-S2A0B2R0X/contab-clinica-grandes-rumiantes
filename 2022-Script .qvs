@@ -26,7 +26,7 @@ FOR EACH vAno in '2018','2019','2020','2021';
 
     Ingresos_T:
     $(vConcat)
-    load *, '$(vAno)'  as Flag
+    LOAD *, '$(vAno)'  as Flag
 
     FROM [lib://000000-2_Covetcor/OUT/MOVIMIENTOS_$(vAno).QVD]
     (qvd);
@@ -41,19 +41,19 @@ NEXT vAno
  [Movimientos]:
       CROSSTABLE ([Concepto],[Valor],5)
       LOAD
-      Year(([DÍA]) ) AS [Año],
-      MonthName(([DÍA]) ) AS [Año Mes],
-      	Month(([DÍA]) ) AS [Mes],
-          Date([DÍA] ) AS [Fecha],
+      Year(([DÍA]) ) as [Año],
+      MonthName(([DÍA]) ) as [Año Mes],
+      	Month(([DÍA]) ) as [Mes],
+          Date([DÍA] ) as [Fecha],
           Flag,
-          [CLÍNICA] AS [Cli-Servicios],
-          [F3] AS [Cli-Medica],
+          [CLÍNICA] as [Cli-Servicios],
+          [F3] as [Cli-Medica],
           [VACUNO],
           [OVIN-CAPRI],
           [PORCINO],
           [EQUINO],
-          [CAZAS],
-          [MATANZAS],
+          [CAZas],
+          [MATANZas],
           [APPC],
           [PELUQUERÍA],
           [TIENDA],
@@ -61,8 +61,8 @@ NEXT vAno
           [CAJA RURAL],
           [TELÉFONO],
           [IBERDROLA],
-          [GASOIL CALEF],
-          [GASOIL CO],
+          [GasOIL CALEF],
+          [GasOIL CO],
           [TALLERES],
           [COLEGIO],
           [AGUA],
@@ -79,7 +79,7 @@ NEXT vAno
           [DR.BARBA],
           [FPS],
           [LAB. EXTERNOS],
-          [AZASA],
+          [AZasA],
           [RAINBOW],
           [AGRIZOO],
           [INSVET],
@@ -88,8 +88,8 @@ NEXT vAno
           [CERAMA],
           [PAPEL],
           [FORMACIÓN],
-          [ASESORÍA],
-          [NÓMINAS],
+          [asESORÍA],
+          [NÓMINas],
           [OTROS]
           
           Resident Ingresos_T
@@ -108,8 +108,8 @@ Concepto,y
 	"OVIN-CAPRI","1"
 	"PORCINO","1"
 	"EQUINO","1"
-	"CAZAS","1"
-	"MATANZAS","1"
+	"CAZas","1"
+	"MATANZas","1"
 	"APPC","1"
 	"PELUQUERÍA","1"
 	"TIENDA","1"
@@ -117,8 +117,8 @@ Concepto,y
 	"CAJA RURAL","2"
 	"TELÉFONO","2"
 	"IBERDROLA","2"
-	"GASOIL CALEF","2"
-	"GASOIL CO","2"
+	"GasOIL CALEF","2"
+	"GasOIL CO","2"
 	"TALLERES","2"
 	"COLEGIO","2"
 	"AGUA","2"
@@ -135,7 +135,7 @@ Concepto,y
 	"DR.BARBA","2"
 	"FPS","2"
 	"LAB. EXTERNOS","2"
-	"AZASA","2"
+	"AZasA","2"
 	"RAINBOW","2"
 	"AGRIZOO","2"
 	"INSVET","2"
@@ -160,27 +160,27 @@ y, I_G
 [autoCalendar]: 
   DECLARE FIELD DEFINITION Tagged ('$date')
 FIELDS
-  Dual(Year($1), YearStart($1)) AS [Year] Tagged ('$axis', '$year'),
-  Dual('Q'&Num(Ceil(Num(Month($1))/3)),Num(Ceil(NUM(Month($1))/3),00)) AS [Quarter] Tagged ('$quarter', '$cyclic'),
-  Dual(Year($1)&'-Q'&Num(Ceil(Num(Month($1))/3)),QuarterStart($1)) AS [YearQuarter] Tagged ('$yearquarter', '$qualified'),
-  Dual('Q'&Num(Ceil(Num(Month($1))/3)),QuarterStart($1)) AS [_YearQuarter] Tagged ('$yearquarter', '$hidden', '$simplified'),
-  Month($1) AS [Month] Tagged ('$month', '$cyclic'),
-  Dual(Year($1)&'-'&Month($1), monthstart($1)) AS [YearMonth] Tagged ('$axis', '$yearmonth', '$qualified'),
-  Dual(Month($1), monthstart($1)) AS [_YearMonth] Tagged ('$axis', '$yearmonth', '$simplified', '$hidden'),
-  Dual('W'&Num(Week($1),00), Num(Week($1),00)) AS [Week] Tagged ('$weeknumber', '$cyclic'),
-  Date(Floor($1)) AS [Date] Tagged ('$axis', '$date', '$qualified'),
-  Date(Floor($1), 'D') AS [_Date] Tagged ('$axis', '$date', '$hidden', '$simplified'),
-  If (DayNumberOfYear($1) <= DayNumberOfYear(Today()), 1, 0) AS [InYTD] ,
-  Year(Today())-Year($1) AS [YearsAgo] ,
-  If (DayNumberOfQuarter($1) <= DayNumberOfQuarter(Today()),1,0) AS [InQTD] ,
-  4*Year(Today())+Ceil(Month(Today())/3)-4*Year($1)-Ceil(Month($1)/3) AS [QuartersAgo] ,
-  Ceil(Month(Today())/3)-Ceil(Month($1)/3) AS [QuarterRelNo] ,
-  If(Day($1)<=Day(Today()),1,0) AS [InMTD] ,
-  12*Year(Today())+Month(Today())-12*Year($1)-Month($1) AS [MonthsAgo] ,
-  Month(Today())-Month($1) AS [MonthRelNo] ,
-  If(WeekDay($1)<=WeekDay(Today()),1,0) AS [InWTD] ,
-  (WeekStart(Today())-WeekStart($1))/7 AS [WeeksAgo] ,
-  Week(Today())-Week($1) AS [WeekRelNo] ;
+  Dual(Year($1), YearStart($1)) as [Year] Tagged ('$axis', '$year'),
+  Dual('Q'&Num(Ceil(Num(Month($1))/3)),Num(Ceil(NUM(Month($1))/3),00)) as [Quarter] Tagged ('$quarter', '$cyclic'),
+  Dual(Year($1)&'-Q'&Num(Ceil(Num(Month($1))/3)),QuarterStart($1)) as [YearQuarter] Tagged ('$yearquarter', '$qualified'),
+  Dual('Q'&Num(Ceil(Num(Month($1))/3)),QuarterStart($1)) as [_YearQuarter] Tagged ('$yearquarter', '$hidden', '$simplified'),
+  Month($1) as [Month] Tagged ('$month', '$cyclic'),
+  Dual(Year($1)&'-'&Month($1), monthstart($1)) as [YearMonth] Tagged ('$axis', '$yearmonth', '$qualified'),
+  Dual(Month($1), monthstart($1)) as [_YearMonth] Tagged ('$axis', '$yearmonth', '$simplified', '$hidden'),
+  Dual('W'&Num(Week($1),00), Num(Week($1),00)) as [Week] Tagged ('$weeknumber', '$cyclic'),
+  Date(Floor($1)) as [Date] Tagged ('$axis', '$date', '$qualified'),
+  Date(Floor($1), 'D') as [_Date] Tagged ('$axis', '$date', '$hidden', '$simplified'),
+  If (DayNumberOfYear($1) <= DayNumberOfYear(Today()), 1, 0) as [InYTD] ,
+  Year(Today())-Year($1) as [YearsAgo] ,
+  If (DayNumberOfQuarter($1) <= DayNumberOfQuarter(Today()),1,0) as [InQTD] ,
+  4*Year(Today())+Ceil(Month(Today())/3)-4*Year($1)-Ceil(Month($1)/3) as [QuartersAgo] ,
+  Ceil(Month(Today())/3)-Ceil(Month($1)/3) as [QuarterRelNo] ,
+  If(Day($1)<=Day(Today()),1,0) as [InMTD] ,
+  12*Year(Today())+Month(Today())-12*Year($1)-Month($1) as [MonthsAgo] ,
+  Month(Today())-Month($1) as [MonthRelNo] ,
+  If(WeekDay($1)<=WeekDay(Today()),1,0) as [InWTD] ,
+  (WeekStart(Today())-WeekStart($1))/7 as [WeeksAgo] ,
+  Week(Today())-Week($1) as [WeekRelNo] ;
 
 DERIVE FIELDS FROM FIELDS [Fecha] USING [autoCalendar] ;
 ///$tab Exit Script;
@@ -198,7 +198,7 @@ SET vAnosListado = '2017','2018','2019','2020','2021';
            		 $(vConcat) 
               load *,
               '$(vMes)' as MONTH,
-              '$(vANO)' AS YEAR
+              '$(vANO)' as YEAR
 
 
              FROM [lib://000000-2_Covetcor/INGRESOS DIARIOS $(vANO).xlsx]
@@ -222,8 +222,8 @@ LOAD
     "OVIN-CAPRI",
     PORCINO,
     EQUINO,
-    CAZAS,
-    MATANZAS,
+    CAZas,
+    MATANZas,
     APPC,
     PELUQUERÍA,
     TIENDA,
@@ -231,8 +231,8 @@ LOAD
     "CAJA RURAL",
     TELÉFONO,
     IBERDROLA,
-    "GASOIL CALEF",
-    "GASOIL CO",
+    "GasOIL CALEF",
+    "GasOIL CO",
     TALLERES,
     COLEGIO,
     AGUA,
@@ -249,7 +249,7 @@ LOAD
     DR.BARBA,
     FPS,
     "LAB. EXTERNOS",
-    AZASA,
+    AZasA,
     RAINBOW,
     AGRIZOO,
     INSVET,
@@ -258,8 +258,8 @@ LOAD
     CERAMA,
     PAPEL,
     FORMACIÓN,
-    ASESORÍA,
-    NÓMINAS,
+    asESORÍA,
+    NÓMINas,
     OTROS
 FROM [lib://000000-2_Covetcor/INGRESOS DIARIOS 2021.xlsx]
 (ooxml, embedded labels, header is 2 lines, table is ENERO);
