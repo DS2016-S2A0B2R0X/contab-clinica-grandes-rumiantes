@@ -1,0 +1,277 @@
+///$tab Main
+SET ThousandSep=' ';
+SET DecimalSep=',';
+SET MoneyThousandSep=' ';
+SET MoneyDecimalSep=',';
+SET MoneyFormat='# ##0,00 €;-# ##0,00 €';
+SET TimeFormat='hh:mm:ss';
+SET DateFormat='DD/MM/YYYY';
+SET TimestampFormat='DD/MM/YYYY hh:mm:ss[.fff]';
+SET FirstWeekDay=0;
+SET BrokenWeeks=0;
+SET ReferenceDay=4;
+SET FirstMonthOfYear=1;
+SET CollationLocale='pt-PT';
+SET CreateSearchIndexOnReload=1;
+SET MonthNames='jan;fev;mar;abr;mai;jun;jul;ago;set;out;nov;dez';
+SET LongMonthNames='janeiro;fevereiro;março;abril;maio;junho;julho;agosto;setembro;outubro;novembro;dezembro';
+SET DayNames='segunda;terça;quarta;quinta;sexta;sábado;domingo';
+SET LongDayNames='segunda-feira;terça-feira;quarta-feira;quinta-feira;sexta-feira;sábado;domingo';
+SET NumericalAbbreviation='3:k;6:M;9:G;12:T;15:P;18:E;21:Z;24:Y;-3:m;-6:μ;-9:n;-12:p;-15:f;-18:a;-21:z;-24:y';
+
+///$tab cross table
+SET vConcat = ;
+
+FOR EACH vAno in '2018','2019','2020','2021';
+
+    Ingresos_T:
+    $(vConcat)
+    load *, '$(vAno)'  as Flag
+
+    FROM [lib://000000-2_Covetcor/OUT/MOVIMIENTOS_$(vAno).QVD]
+    (qvd);
+    SET vConcat = 'CONCATENATE';
+    
+NEXT vAno
+//Exit Script;
+ 
+ 
+ 
+ 
+ [Movimientos]:
+      CROSSTABLE ([Concepto],[Valor],5)
+      LOAD
+      Year(([DÍA]) ) AS [Año],
+      MonthName(([DÍA]) ) AS [Año Mes],
+      	Month(([DÍA]) ) AS [Mes],
+          Date([DÍA] ) AS [Fecha],
+          Flag,
+          [CLÍNICA] AS [Cli-Servicios],
+          [F3] AS [Cli-Medica],
+          [VACUNO],
+          [OVIN-CAPRI],
+          [PORCINO],
+          [EQUINO],
+          [CAZAS],
+          [MATANZAS],
+          [APPC],
+          [PELUQUERÍA],
+          [TIENDA],
+          [GENERAL],
+          [CAJA RURAL],
+          [TELÉFONO],
+          [IBERDROLA],
+          [GASOIL CALEF],
+          [GASOIL CO],
+          [TALLERES],
+          [COLEGIO],
+          [AGUA],
+          [CT SOLUTIONS],
+          [OAPGT],
+          [AUTÓNOMOS],
+          [HACIENDA],
+          [MRW],
+          [COVEGAMA],
+          [PROTEGA],
+          [EQUVET],
+          [COPORVET],
+          [PROYMA],
+          [DR.BARBA],
+          [FPS],
+          [LAB. EXTERNOS],
+          [AZASA],
+          [RAINBOW],
+          [AGRIZOO],
+          [INSVET],
+          [GRUPANOR],
+          [MAYORAL],
+          [CERAMA],
+          [PAPEL],
+          [FORMACIÓN],
+          [ASESORÍA],
+          [NÓMINAS],
+          [OTROS]
+          
+          Resident Ingresos_T
+          where len([DÍA])>1;
+          
+          
+          
+          drop Table Ingresos_T;
+///$tab Ingresos Gastos
+Conceptos:
+load * inline [
+Concepto,y
+"Cli-Servicios","1"
+	"Cli-Medica","1"
+	"VACUNO","1"
+	"OVIN-CAPRI","1"
+	"PORCINO","1"
+	"EQUINO","1"
+	"CAZAS","1"
+	"MATANZAS","1"
+	"APPC","1"
+	"PELUQUERÍA","1"
+	"TIENDA","1"
+	"GENERAL","1"
+	"CAJA RURAL","2"
+	"TELÉFONO","2"
+	"IBERDROLA","2"
+	"GASOIL CALEF","2"
+	"GASOIL CO","2"
+	"TALLERES","2"
+	"COLEGIO","2"
+	"AGUA","2"
+	"CT SOLUTIONS","2"
+	"OAPGT","2"
+	"AUTÓNOMOS","2"
+	"HACIENDA","2"
+	"MRW","2"
+	"COVEGAMA","2"
+	"PROTEGA","2"
+	"EQUVET","2"
+	"COPORVET","2"
+	"PROYMA","2"
+	"DR.BARBA","2"
+	"FPS","2"
+	"LAB. EXTERNOS","2"
+	"AZASA","2"
+	"RAINBOW","2"
+	"AGRIZOO","2"
+	"INSVET","2"
+	"GRUPANOR","2"
+	"MAYORAL","2"
+	"CERAMA","2"
+	"PAPEL","2"
+	"FORMACIÓN","2"
+	"ASESORÍA","2"
+	"NÓMINAS","2"
+	"OTROS","2"
+];
+
+
+load * inline [
+y, I_G
+"1", "Ingreso"
+"2","Gasto"
+
+];
+///$tab Calendar
+[autoCalendar]: 
+  DECLARE FIELD DEFINITION Tagged ('$date')
+FIELDS
+  Dual(Year($1), YearStart($1)) AS [Year] Tagged ('$axis', '$year'),
+  Dual('Q'&Num(Ceil(Num(Month($1))/3)),Num(Ceil(NUM(Month($1))/3),00)) AS [Quarter] Tagged ('$quarter', '$cyclic'),
+  Dual(Year($1)&'-Q'&Num(Ceil(Num(Month($1))/3)),QuarterStart($1)) AS [YearQuarter] Tagged ('$yearquarter', '$qualified'),
+  Dual('Q'&Num(Ceil(Num(Month($1))/3)),QuarterStart($1)) AS [_YearQuarter] Tagged ('$yearquarter', '$hidden', '$simplified'),
+  Month($1) AS [Month] Tagged ('$month', '$cyclic'),
+  Dual(Year($1)&'-'&Month($1), monthstart($1)) AS [YearMonth] Tagged ('$axis', '$yearmonth', '$qualified'),
+  Dual(Month($1), monthstart($1)) AS [_YearMonth] Tagged ('$axis', '$yearmonth', '$simplified', '$hidden'),
+  Dual('W'&Num(Week($1),00), Num(Week($1),00)) AS [Week] Tagged ('$weeknumber', '$cyclic'),
+  Date(Floor($1)) AS [Date] Tagged ('$axis', '$date', '$qualified'),
+  Date(Floor($1), 'D') AS [_Date] Tagged ('$axis', '$date', '$hidden', '$simplified'),
+  If (DayNumberOfYear($1) <= DayNumberOfYear(Today()), 1, 0) AS [InYTD] ,
+  Year(Today())-Year($1) AS [YearsAgo] ,
+  If (DayNumberOfQuarter($1) <= DayNumberOfQuarter(Today()),1,0) AS [InQTD] ,
+  4*Year(Today())+Ceil(Month(Today())/3)-4*Year($1)-Ceil(Month($1)/3) AS [QuartersAgo] ,
+  Ceil(Month(Today())/3)-Ceil(Month($1)/3) AS [QuarterRelNo] ,
+  If(Day($1)<=Day(Today()),1,0) AS [InMTD] ,
+  12*Year(Today())+Month(Today())-12*Year($1)-Month($1) AS [MonthsAgo] ,
+  Month(Today())-Month($1) AS [MonthRelNo] ,
+  If(WeekDay($1)<=WeekDay(Today()),1,0) AS [InWTD] ,
+  (WeekStart(Today())-WeekStart($1))/7 AS [WeeksAgo] ,
+  Week(Today())-Week($1) AS [WeekRelNo] ;
+
+DERIVE FIELDS FROM FIELDS [Fecha] USING [autoCalendar] ;
+///$tab Exit Script;
+Exit Script;
+///$tab QVD from Excel-run once
+SET vAnosListado = '2017','2018','2019','2020','2021';
+ For each vANO IN $(vAnosListado)
+      set vListadoMes = 'ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE';
+
+      set vConcat = ;
+      // seams broken, red, but it works
+      For Each vMes in $(vListadoMes)
+		TRACE $(vMes) &'  '&$(vANO);
+              Ingresos_T:
+           		 $(vConcat) 
+              load *,
+              '$(vMes)' as MONTH,
+              '$(vANO)' AS YEAR
+
+
+             FROM [lib://000000-2_Covetcor/INGRESOS DIARIOS $(vANO).xlsx]
+            (ooxml, embedded labels, header is 2 lines, table is $(vMes))
+            where len([DÍA])>1 AND WILDMATCH([DÍA],'*TOTAL*') = 0 ;
+           		set vConcat = 'concatenate' ;
+      NEXT vMes
+      STORE Ingresos_T INTO [lib://000000-2_Covetcor/OUT/MOVIMIENTOS_$(vANO).QVD](QVD);
+      DROP TABLE Ingresos_T;
+      
+  NEXT vANO 
+
+// una vez cargado el ano completo
+
+/*
+LOAD
+    DÍA,
+    CLÍNICA,
+    F3,
+    VACUNO,
+    "OVIN-CAPRI",
+    PORCINO,
+    EQUINO,
+    CAZAS,
+    MATANZAS,
+    APPC,
+    PELUQUERÍA,
+    TIENDA,
+    GENERAL,
+    "CAJA RURAL",
+    TELÉFONO,
+    IBERDROLA,
+    "GASOIL CALEF",
+    "GASOIL CO",
+    TALLERES,
+    COLEGIO,
+    AGUA,
+    "CT SOLUTIONS",
+    OAPGT,
+    AUTÓNOMOS,
+    HACIENDA,
+    MRW,
+    COVEGAMA,
+    PROTEGA,
+    EQUVET,
+    COPORVET,
+    PROYMA,
+    DR.BARBA,
+    FPS,
+    "LAB. EXTERNOS",
+    AZASA,
+    RAINBOW,
+    AGRIZOO,
+    INSVET,
+    GRUPANOR,
+    MAYORAL,
+    CERAMA,
+    PAPEL,
+    FORMACIÓN,
+    ASESORÍA,
+    NÓMINAS,
+    OTROS
+FROM [lib://000000-2_Covetcor/INGRESOS DIARIOS 2021.xlsx]
+(ooxml, embedded labels, header is 2 lines, table is ENERO);
+
+
+*/
+
+
+///$tab qualify
+qualify * ;
+ Mov:
+load * 
+ 
+FROM [lib://000000-2_Covetcor/OUT/MOVIMIENTOS_*.QVD]
+(qvd);
